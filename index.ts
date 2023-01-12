@@ -2,10 +2,10 @@ import { FormEvent, useState } from "react";
 
 type ValidationConfig = Partial<
 	Record<keyof ValidityState, string> &
-	Record<
-		"validate",
-		(el: HTMLInputElement | HTMLTextAreaElement, formData: FormData) => string
-	>
+	{
+		validate(el: HTMLInputElement | HTMLTextAreaElement, formData: FormData): string,
+		effects: [string, (el: HTMLInputElement | HTMLTextAreaElement) => void][]
+	}
 >;
 
 export function useFormErrors(errors?: Record<string, string>) {
@@ -26,8 +26,8 @@ export function useFormErrors(errors?: Record<string, string>) {
 			);
 		},
 		fieldValidation(
-			{ validate = () => "", ...config }: ValidationConfig = {
-				validate: () => ""
+			{ validate = () => "", effects = [], ...config }: ValidationConfig = {
+				validate: () => "", effects: []
 			}
 		) {
 			function applyCustomValidity(el: HTMLInputElement | HTMLTextAreaElement) {
@@ -65,6 +65,10 @@ export function useFormErrors(errors?: Record<string, string>) {
 				},
 				onInput(e: FormEvent<HTMLInputElement | HTMLTextAreaElement>) {
 					_validate(e.currentTarget);
+
+					effects.forEach(([dependant, validation]) => {
+						validation(e.currentTarget.form?.elements.namedItem(dependant) as HTMLInputElement);
+					});
 				}
 			};
 		}
