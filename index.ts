@@ -31,7 +31,7 @@ export function useFormErrors(errors?: Record<string, string>) {
 			}
 		) {
 			function applyCustomValidity(el: HTMLInputElement | HTMLTextAreaElement) {
-				el.setCustomValidity(validate(el, new FormData(el.form?.cloneNode() as HTMLFormElement ?? undefined)));
+				el.setCustomValidity(validate(el, new FormData(el.form?.cloneNode(true) as HTMLFormElement ?? undefined)));
 
 				if (el.validity.customError) {
 					return;
